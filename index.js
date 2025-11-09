@@ -45,7 +45,18 @@ async function run() {
 
 
 
-
+    // Get filtered listings by category
+    app.get('/listings/category/:category', async (req, res) => {
+      try {
+        const category = req.params.category;
+        const query = { category: category };
+        const listings = await listingCollection.find(query).toArray();
+        res.json(listings);
+      } catch (error) {
+        console.error('Error fetching category listings:', error);
+        res.status(500).json({ message: 'Error fetching category listings' });
+      }
+    });
 
 
 
