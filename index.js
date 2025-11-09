@@ -58,6 +58,22 @@ async function run() {
       }
     });
 
+    // Get recent 6 listings
+    app.get('/listings/recent', async (req, res) => {
+      try {
+        const listings = await listingCollection
+          .find()
+          .sort({ date: -1 })
+          .limit(6)
+          .toArray();
+        res.json(listings);
+      } catch (error) {
+        console.error('Error fetching recent listings:', error);
+        res.status(500).json({ message: 'Error fetching recent listings' });
+      }
+    });
+
+
 
 
 
