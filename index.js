@@ -91,6 +91,25 @@ async function run() {
     });
 
 
+   // Search listings by name (case-insensitive)
+    app.get('/search', async (req, res) => {
+      try {
+        const search_text = req.query.search || "";
+
+        const query = search_text
+          ? { name: { $regex: search_text, $options: "i" } }
+          : {};
+
+        const result = await allcategory.find(query).toArray();
+        res.status(200).json(result);
+      } catch (error) {
+        console.error("Error during search:", error);
+        res.status(500).json({ message: "Error performing search" });
+      }
+    });
+
+
+
 
 
 
