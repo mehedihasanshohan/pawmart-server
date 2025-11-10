@@ -30,11 +30,13 @@ async function run() {
 
     const db = client.db('listingdb')
     const listingCollection = db.collection('listings')
+    const allcategory = db.collection('allcategory')
 
     // find all listing data from mongodb
      app.get('/listings', async (req, res) => {
       try {
-        const cursor = listingCollection.find();
+        // const cursor = listingCollection.find();
+        const cursor = allcategory.find();
         const listings = await cursor.toArray();
         res.json(listings);
       } catch (error) {
@@ -50,7 +52,8 @@ async function run() {
       try {
         const category = req.params.category;
         const query = { category: category };
-        const listings = await listingCollection.find(query).toArray();
+        // const listings = await listingCollection.find(query).toArray();
+        const listings = await allcategory.find(query).toArray();
         res.json(listings);
       } catch (error) {
         console.error('Error fetching category listings:', error);
@@ -61,7 +64,7 @@ async function run() {
     // Get recent 6 listings
     app.get('/listings/recent', async (req, res) => {
       try {
-        const listings = await listingCollection
+        const listings = await allcategory
           .find()
           .sort({ date: -1 })
           .limit(6)
@@ -72,6 +75,36 @@ async function run() {
         res.status(500).json({ message: 'Error fetching recent listings' });
       }
     });
+
+
+     // Get Single Listing Details (for “See Details”)
+    // app.get('/listing/:id', async (req, res) => {
+    //   try {
+    //     const id = req.params.id;
+    //     const listing = await allcategory.findOne({ _id: new ObjectId(id) });
+    //     res.json(listing);
+    //   } catch (error) {
+    //     console.error('Error fetching listing details:', error);
+    //     res.status(500).json({ message: 'Error fetching listing details' });
+    //   }
+    // });
+
+
+     app.get('/listing/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+      
+        const listing = await allcategory.findOne({ _id: id });
+        if (!listing) return res.status(404).json({ message: 'Listing not found' });
+      
+        res.json(listing);
+      } catch (error) {
+        console.error('Error fetching listing details:', error);
+        res.status(500).json({ message: 'Error fetching listing details' });
+      }
+    });
+
+
 
 
 
