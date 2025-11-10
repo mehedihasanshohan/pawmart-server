@@ -77,6 +77,23 @@ async function run() {
     });
 
 
+    // Get all listings
+    app.get('/listings', async (req, res) => {
+      try {
+        const listings = await allcategory
+          .find()
+          .toArray();
+        res.json(listings);
+      } catch (error) {
+        console.error('Error fetching recent listings:', error);
+        res.status(500).json({ message: 'Error fetching recent listings' });
+      }
+    });
+
+
+
+
+
      // Get Single Listing Details (for “See Details”)
     // app.get('/listing/:id', async (req, res) => {
     //   try {
@@ -93,10 +110,10 @@ async function run() {
      app.get('/listing/:id', async (req, res) => {
       try {
         const id = req.params.id;
-      
+
         const listing = await allcategory.findOne({ _id: id });
         if (!listing) return res.status(404).json({ message: 'Listing not found' });
-      
+
         res.json(listing);
       } catch (error) {
         console.error('Error fetching listing details:', error);
