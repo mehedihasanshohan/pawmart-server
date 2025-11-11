@@ -1,6 +1,6 @@
 const express = require('express');
 const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -130,7 +130,7 @@ async function run() {
       try {
         const id = req.params.id;
 
-        const listing = await allcategory.findOne({ _id: id });
+        const listing = await allcategory.findOne({ _id: id});
         if (!listing) return res.status(404).json({ message: 'Listing not found' });
 
         res.json(listing);
@@ -150,6 +150,33 @@ async function run() {
         res.status(500).send({ message: "Failed to save listing", error });
       }
     });
+
+
+    // POST /orders - Submit a new order
+    app.post('/orders', async (req, res) => {
+     try {
+     const order = req.body;
+
+      if (!order.buyerName || !order.email || !order.listingId) {
+        return res.status(400).json({ message: 'Missing required fields' });
+      }
+
+      const db = client.db('listingdb');
+      const ordersCollection = db.collection('orders'); // new orders collection
+
+      const result = await ordersCollection.insertOne({
+        ...order,
+        createdAt: new Date()
+      });
+
+      res.status(201).json({ message: 'Order placed successfully', orderId: result.insertedId });
+    } catch (error) {
+      console.error('Error saving order:', error);
+      res.status(500).json({ message: 'Failed to place order', error });
+    }
+  });
+
+
 
 
 
