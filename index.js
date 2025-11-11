@@ -141,6 +141,17 @@ async function run() {
     });
 
 
+    app.post("/addlisting", async (req, res) => {
+      try {
+        const newListing = req.body;
+        const result = await allcategory.insertOne(newListing);
+        res.status(201).send(result);
+      } catch (error) {
+        res.status(500).send({ message: "Failed to save listing", error });
+      }
+    });
+
+
 
 
 
