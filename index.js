@@ -31,7 +31,9 @@ async function run() {
     const db = client.db('listingdb')
     const listingCollection = db.collection('listings')
     const allcategory = db.collection('allcategory')
-    const ordersCollection = db.collection('orders'); // new orders collection
+    const ordersCollection = db.collection('orders');
+    const mylistingscollection = db.collection('mylistings')
+
 
     // find all listing data from mongodb
      app.get('/listings', async (req, res) => {
@@ -114,18 +116,6 @@ async function run() {
 
 
 
-     // Get Single Listing Details (for “See Details”)
-    // app.get('/listing/:id', async (req, res) => {
-    //   try {
-    //     const id = req.params.id;
-    //     const listing = await allcategory.findOne({ _id: new ObjectId(id) });
-    //     res.json(listing);
-    //   } catch (error) {
-    //     console.error('Error fetching listing details:', error);
-    //     res.status(500).json({ message: 'Error fetching listing details' });
-    //   }
-    // });
-
 
      app.get('/listing/:id', async (req, res) => {
       try {
@@ -149,7 +139,11 @@ async function run() {
         const newListing = req.body;
         const result = await allcategory.insertOne(newListing);
         res.status(201).send(result);
+        console.log(" Received new listing:", req.body);
+        console.log(" Inserting into:", db.databaseName, "collection:", allcategory.collectionName);
+
       } catch (error) {
+        console.error(error)
         res.status(500).send({ message: "Failed to save listing", error });
       }
     });
@@ -179,25 +173,124 @@ async function run() {
   });
 
 
-  app.get('/myorders', async(req, res) => {
-    const cursor = ordersCollection.find();
+
+
+  // app.get('/myorders', async(req, res) => {
+  //     const query= {};
+  //     if(query.email){
+  //       query.email = email;
+  //       const cursor = ordersCollection.find(email);
+  //       const result = await cursor.toArray();
+  //       res.send(result);
+  //     }
+  //   })
+
+
+    // Server.js - app.get('/myorders', ...)
+    // Server.js - app.get('/myorders', ...) - FIX
+
+
+    app.get('/myorders', async(req, res) => {
+  try {
+    const userEmail = req.query.email;
+    if (!userEmail) {
+      return res.status(400).send({ message: "Email query parameter is required" });
+    }
+
+    const query = { email: userEmail };
+    const cursor = ordersCollection.find(query);
     const result = await cursor.toArray();
     res.send(result);
-  })
+  } catch (error) {
+    console.error('Error fetching orders:', error);
+    res.status(500).send({ message: "Failed to fetch orders" });
+  }
+});
 
-  app.get('/myorders', async(req, res) => {
-      const query= {};
-      if(query.email){
-        query.email = email;
-        const cursor = ordersCollection.find();
-        const result = await cursor.toArray();
-        res.send(result);
+
+   app.get('/mylistings', async(req, res) => {
+    try {
+    const userEmail = req.query.email;
+    if (!userEmail) {
+      return res.status(400).send({ message: "Email query parameter is required" });
+    }
+
+    const query = { email: userEmail };
+    const cursor = allcategory.find(query);
+    const result = await cursor.toArray();
+    res.send(result);
+  } catch (error) {
+    console.error('Error fetching listings:', error);
+    res.status(500).send({ message: "Failed to fetch user listings" });
+  }
+});
+
+  // app.get('/mylistings', async(req, res) => {
+  //     const query= {};
+  //     if(query.email){
+  //       query.email = email;
+  //       const cursor = allcategory.find(email);
+  //       const result = await cursor.toArray();
+  //       res.send(result);
+  //     }
+  //   })
+
+
+
+
+
+  // DELETE a listing by ID
+    app.delete('/mylistings/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const query = { _id: new ObjectId(id) };
+        const result = await allcategory.deleteOne(query);
+      
+        if (result.deletedCount === 0) {
+          return res.status(404).json({ message: 'Listing not found' });
+        }
+      
+        res.status(200).json({ message: 'Listing deleted successfully' });
+      } catch (error) {
+        console.error('Error deleting listing:', error);
+        res.status(500).json({ message: 'Failed to delete listing' });
       }
-    })
-
-
-
-
+    });
+    
+    
+    
+    
+    // UPDATE a listing by ID
+    app.put('/mylistings/:id', async (req, res) => {
+      try {
+        const id = req.params.id;
+        const updatedData = req.body;
+      
+        const query = { _id: new ObjectId(id) };
+        const updateDoc = {
+          $set: {
+            name: updatedData.name,
+            category: updatedData.category,
+            price: updatedData.price,
+            location: updatedData.location,
+            description: updatedData.description,
+            image: updatedData.image,
+            date: updatedData.date
+          }
+        };
+      
+        const result = await allcategory.updateOne(query, updateDoc);
+      
+        if (result.matchedCount === 0) {
+          return res.status(404).json({ message: 'Listing not found' });
+        }
+      
+        res.status(200).json({ message: 'Listing updated successfully' });
+      } catch (error) {
+        console.error('Error updating listing:', error);
+        res.status(500).json({ message: 'Failed to update listing' });
+      }
+    });
 
 
 
