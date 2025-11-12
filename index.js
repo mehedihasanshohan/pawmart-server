@@ -31,6 +31,7 @@ async function run() {
     const db = client.db('listingdb')
     const listingCollection = db.collection('listings')
     const allcategory = db.collection('allcategory')
+    const ordersCollection = db.collection('orders'); // new orders collection
 
     // find all listing data from mongodb
      app.get('/listings', async (req, res) => {
@@ -141,6 +142,8 @@ async function run() {
     });
 
 
+
+
     app.post("/addlisting", async (req, res) => {
       try {
         const newListing = req.body;
@@ -157,12 +160,11 @@ async function run() {
      try {
      const order = req.body;
 
-      if (!order.buyerName || !order.email || !order.listingId) {
+      if (!order.buyerName || !order.email || !order.productId) {
         return res.status(400).json({ message: 'Missing required fields' });
       }
 
       const db = client.db('listingdb');
-      const ordersCollection = db.collection('orders'); // new orders collection
 
       const result = await ordersCollection.insertOne({
         ...order,
@@ -175,6 +177,23 @@ async function run() {
       res.status(500).json({ message: 'Failed to place order', error });
     }
   });
+
+
+  app.get('/myorders', async(req, res) => {
+    const cursor = ordersCollection.find();
+    const result = await cursor.toArray();
+    res.send(result);
+  })
+
+  app.get('/myorders', async(req, res) => {
+      const query= {};
+      if(query.email){
+        query.email = email;
+        const cursor = ordersCollection.find();
+        const result = await cursor.toArray();
+        res.send(result);
+      }
+    })
 
 
 
