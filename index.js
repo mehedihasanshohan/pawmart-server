@@ -81,20 +81,6 @@ async function run() {
     });
 
 
-    // Get all listings
-    app.get('/listings', async (req, res) => {
-      try {
-        const listings = await allcategory
-          .find()
-          .toArray();
-        res.json(listings);
-      } catch (error) {
-        console.error('Error fetching recent listings:', error);
-        res.status(500).json({ message: 'Error fetching recent listings' });
-      }
-    });
-
-
    // Search listings by name (case-insensitive)
     app.get('/search', async (req, res) => {
       try {
@@ -302,7 +288,7 @@ async function run() {
 
 
 
-    await client.db("pawmart").command({ ping: 1 });
+    // await client.db("pawmart").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // await client.close();
@@ -312,6 +298,6 @@ run().catch(console.dir);
 
 
 
-app.listen(port, () => {
-  console.log(`App listening on port ${port}`)
-})
+// app.listen(port, () => {
+//   console.log(`App listening on port ${port}`)
+// })
