@@ -27,7 +27,7 @@ app.get('/', (req, res) => {
 
 async function run() {
   try {
-    await client.connect();
+    // await client.connect();
 
     const db = client.db('listingdb')
     const listingCollection = db.collection('listings')
