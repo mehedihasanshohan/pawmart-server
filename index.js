@@ -2,13 +2,14 @@ const express = require('express');
 const cors = require('cors');
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 const app = express();
+require('dotenv').config()
 const port = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json())
 
-// 2L0y8sfPoBYbis7U
-const uri = "mongodb+srv://pawmartDb:2L0y8sfPoBYbis7U@cluster0.5yczeea.mongodb.net/?appName=Cluster0";
+
+const uri = `mongodb+srv://${process.env.DB_USERNAME}:${process.env.DB_PASSWORD}@cluster0.5yczeea.mongodb.net/?appName=Cluster0`;
 
 const client = new MongoClient(uri, {
   serverApi: {
@@ -245,27 +246,27 @@ async function run() {
         const id = req.params.id;
         const query = { _id: new ObjectId(id) };
         const result = await allcategory.deleteOne(query);
-      
+
         if (result.deletedCount === 0) {
           return res.status(404).json({ message: 'Listing not found' });
         }
-      
+
         res.status(200).json({ message: 'Listing deleted successfully' });
       } catch (error) {
         console.error('Error deleting listing:', error);
         res.status(500).json({ message: 'Failed to delete listing' });
       }
     });
-    
-    
-    
-    
+
+
+
+
     // UPDATE a listing by ID
     app.put('/mylistings/:id', async (req, res) => {
       try {
         const id = req.params.id;
         const updatedData = req.body;
-      
+
         const query = { _id: new ObjectId(id) };
         const updateDoc = {
           $set: {
@@ -278,13 +279,13 @@ async function run() {
             date: updatedData.date
           }
         };
-      
+
         const result = await allcategory.updateOne(query, updateDoc);
-      
+
         if (result.matchedCount === 0) {
           return res.status(404).json({ message: 'Listing not found' });
         }
-      
+
         res.status(200).json({ message: 'Listing updated successfully' });
       } catch (error) {
         console.error('Error updating listing:', error);
