@@ -302,4 +302,5 @@ run().catch(console.dir);
 //   console.log(`App listening on port ${port}`)
 // })
 
+const serverless = require('serverless-http');
 module.exports = app;
