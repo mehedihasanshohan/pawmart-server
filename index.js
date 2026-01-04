@@ -71,7 +71,7 @@ async function run() {
         const listings = await allcategory
           .find()
           .sort({ date: -1 })
-          .limit(6)
+          .limit(8)
           .toArray();
         res.json(listings);
       } catch (error) {
