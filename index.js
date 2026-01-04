@@ -65,7 +65,7 @@ app.get('/listings', async (req, res) => {
       query.category = category;
     }
 
-    let sortOptions = { date: -1 }; /
+    let sortOptions = { date: -1 }; 
     if (sort === 'asc') sortOptions = { Price: 1 };
     if (sort === 'desc') sortOptions = { Price: -1 };
 
