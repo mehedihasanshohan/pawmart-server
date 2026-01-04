@@ -37,17 +37,49 @@ async function run() {
 
 
     // find all listing data from mongodb
-     app.get('/listings', async (req, res) => {
-      try {
-        // const cursor = listingCollection.find();
-        const cursor = allcategory.find();
-        const listings = await cursor.toArray();
-        res.json(listings);
-      } catch (error) {
-        console.error(' Error fetching listings:', error);
-        res.status(500).json({ message: 'Error fetching listings' });
-      }
-    });
+    //  app.get('/listings', async (req, res) => {
+    //   try {
+    //     // const cursor = listingCollection.find();
+    //     const cursor = allcategory.find();
+    //     const listings = await cursor.toArray();
+    //     res.json(listings);
+    //   } catch (error) {
+    //     console.error(' Error fetching listings:', error);
+    //     res.status(500).json({ message: 'Error fetching listings' });
+    //   }
+    // });
+
+    // test
+    // find all listing data with search, category filter, and sorting
+app.get('/listings', async (req, res) => {
+  try {
+    const { search, category, sort } = req.query;
+
+    let query = {};
+
+    if (search) {
+      query.name = { $regex: search, $options: "i" };
+    }
+
+    if (category) {
+      query.category = category;
+    }
+
+    let sortOptions = { date: -1 }; /
+    if (sort === 'asc') sortOptions = { Price: 1 };
+    if (sort === 'desc') sortOptions = { Price: -1 };
+
+    const listings = await allcategory
+      .find(query)
+      .sort(sortOptions)
+      .toArray();
+
+    res.json(listings);
+  } catch (error) {
+    console.error(' Error fetching listings:', error);
+    res.status(500).json({ message: 'Error fetching listings' });
+  }
+});
 
 
 
